@@ -86,26 +86,30 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE BEGIN Init */
+  /* USER CODE BEGIN 2 */
   GPIO_InitTypeDef GPIO_InitStruct = {0};     // 這是初始化宣告，會將 GPIO_InitStruct 結構的所有成員（欄位）明確設為 0。
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP; // 推挽輸出（Push-Pull Output）
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); 
+  // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6, GPIO_PIN_RESET);
 
-
+  // HAL_GPIO_WritePin
   /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
+    for (int i = 0; i < 5; ++i)
+    {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6, GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 << i, GPIO_PIN_RESET);
+      HAL_Delay(500);
+    }
 
     /* USER CODE BEGIN 3 */
   }
@@ -122,8 +126,8 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
