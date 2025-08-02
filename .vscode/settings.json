@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "main.h": "c",
+        "led.h": "c",
+        "stdio.h": "c",
+        "stm32f1xx_hal_usart.h": "c",
+        "button.h": "c",
+        "oled.h": "c",
+        "stm32f1xx_hal.h": "c",
+        "fonts.h": "c",
+        "u8g2.h": "c",
+        "stm32f1xx_hal_tim.h": "c",
+        "string.h": "c"
+    }
+}
