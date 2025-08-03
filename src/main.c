@@ -93,26 +93,45 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
 
-  Button_t btn1 = {
-      .pin = GPIO_PIN_0,
-  };
+  Button_t btn = {0};
+  btn.pin = GPIO_PIN_11;
+  Button_Init(&btn);
 
   OLED_t oled = {0}; // 清空整個 struct，然後再指定部分欄位
   oled.hi2c = &hi2c1;
   oled.address = 0x78;
+  OLED_Init(&oled);
 
   /* USER CODE BEGIN 2 */
-  OLED_Init(&oled);
-  OLED_DrawText(&oled, 0, 10, "Hello OLED");
   /* USER CODE END 2 */
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+
   while (1)
   {
-    /* USER CODE END WHILE */
+    /* USER CODE BEGIN WHILE */
+    ButtonEvent_t btnEvent = Button_Update(&btn);
 
-    /* USER CODE BEGIN 3 */
+    switch (btnEvent)
+    {
+    case BUTTON_STATE_IDLE:
+      OLED_DrawText(&oled, 0, 10, "Button Idle");
+      break;
+    case BUTTON_STATE_PRESSED:
+      OLED_DrawText(&oled, 0, 10, "Button Pressed");
+      break;
+    case BUTTON_STATE_RELEASES:
+      OLED_DrawText(&oled, 0, 10, "Button Released");
+      break;
+    case BUTTON_STATE_LONGPRESS:
+      OLED_DrawText(&oled, 0, 10, "Button LongPressed");
+      break;
+    default:
+      break;
+    }
+
+    /* USER CODE END WHILE */
   }
+  /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
 

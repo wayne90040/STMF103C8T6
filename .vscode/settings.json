@@ -10,6 +10,7 @@
         "fonts.h": "c",
         "u8g2.h": "c",
         "stm32f1xx_hal_tim.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "stdbool.h": "c"
     }
 }
