@@ -21,10 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <led.h>
-#include <button.h>
-#include <oled.h>
 #include <buzzer.h>
+#include <light_sensor.h>
 #include "stdio.h"
 
 /* USER CODE END Includes */
@@ -94,10 +92,6 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
 
-  Button_t btn = {0};
-  btn.pin = GPIO_PIN_11;
-  Button_Init(&btn);
-
   Buzzer_t buzzer = {0};
   buzzer.pin = GPIO_PIN_12;
   Buzzer_Init(&buzzer);
@@ -107,6 +101,10 @@ int main(void)
   buzzerCtrl.repeating = false;
   buzzerCtrl.lastToggleTime = HAL_GetTick();
 
+  LightSensor sensor = {0};
+  sensor.pin = GPIO_PIN_15;
+  LightSensor_Init(&sensor);
+
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
   /* Infinite loop */
@@ -115,22 +113,17 @@ int main(void)
   {
 
     /* USER CODE BEGIN WHILE */
-    ButtonEvent_t btnEvent = Button_Update(&btn);
+    GPIO_PinState state = LightSensor_Read(&sensor);
 
-    switch (btnEvent)
+    if (state == GPIO_PIN_SET)
     {
-    case BUTTON_STATE_RELEASES:
-      Buzzer_Toggle(&buzzer);
-      break;
-    case BUTTON_STATE_LONGPRESS:
-      buzzerCtrl.repeating = !buzzerCtrl.repeating;
-      buzzerCtrl.lastToggleTime = HAL_GetTick();
-      break;
-    default:
-      break;
+      Buzzer_On(&buzzer);
+    }
+    else
+    {
+      Buzzer_Off(&buzzer);
     }
 
-    BuzzerBeepCtrl_Update(&buzzerCtrl);
     /* USER CODE END WHILE */
   }
   /* USER CODE BEGIN 3 */
