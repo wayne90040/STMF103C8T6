@@ -24,6 +24,7 @@
 #include <led.h>
 #include <button.h>
 #include <oled.h>
+#include <buzzer.h>
 #include "stdio.h"
 
 /* USER CODE END Includes */
@@ -97,10 +98,14 @@ int main(void)
   btn.pin = GPIO_PIN_11;
   Button_Init(&btn);
 
-  OLED_t oled = {0}; // 清空整個 struct，然後再指定部分欄位
-  oled.hi2c = &hi2c1;
-  oled.address = 0x78;
-  OLED_Init(&oled);
+  Buzzer_t buzzer = {0};
+  buzzer.pin = GPIO_PIN_12;
+  Buzzer_Init(&buzzer);
+
+  BuzzerBeepCtrl_t buzzerCtrl = {0};
+  buzzerCtrl.buzzer = &buzzer;
+  buzzerCtrl.repeating = false;
+  buzzerCtrl.lastToggleTime = HAL_GetTick();
 
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
@@ -108,27 +113,24 @@ int main(void)
 
   while (1)
   {
+
     /* USER CODE BEGIN WHILE */
     ButtonEvent_t btnEvent = Button_Update(&btn);
 
     switch (btnEvent)
     {
-    case BUTTON_STATE_IDLE:
-      OLED_DrawText(&oled, 0, 10, "Button Idle");
-      break;
-    case BUTTON_STATE_PRESSED:
-      OLED_DrawText(&oled, 0, 10, "Button Pressed");
-      break;
     case BUTTON_STATE_RELEASES:
-      OLED_DrawText(&oled, 0, 10, "Button Released");
+      Buzzer_Toggle(&buzzer);
       break;
     case BUTTON_STATE_LONGPRESS:
-      OLED_DrawText(&oled, 0, 10, "Button LongPressed");
+      buzzerCtrl.repeating = !buzzerCtrl.repeating;
+      buzzerCtrl.lastToggleTime = HAL_GetTick();
       break;
     default:
       break;
     }
 
+    BuzzerBeepCtrl_Update(&buzzerCtrl);
     /* USER CODE END WHILE */
   }
   /* USER CODE BEGIN 3 */
