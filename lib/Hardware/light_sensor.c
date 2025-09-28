@@ -3,8 +3,6 @@
 
 void LightSensor_Init(LightSensor *sensor)
 {
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pin = sensor->pin;

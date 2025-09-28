@@ -21,8 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <buzzer.h>
-#include <light_sensor.h>
+#include <oled.h>
+#include <string.h>
 #include "stdio.h"
 
 /* USER CODE END Includes */
@@ -44,6 +44,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
+OLED_t oled = {0};
+uint32_t counter = 0;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -92,18 +94,13 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
 
-  Buzzer_t buzzer = {0};
-  buzzer.pin = GPIO_PIN_12;
-  Buzzer_Init(&buzzer);
+  oled.hi2c = &hi2c1;
+  oled.address = 0x78;
+  OLED_Init(&oled);
 
-  BuzzerBeepCtrl_t buzzerCtrl = {0};
-  buzzerCtrl.buzzer = &buzzer;
-  buzzerCtrl.repeating = false;
-  buzzerCtrl.lastToggleTime = HAL_GetTick();
-
-  LightSensor sensor = {0};
-  sensor.pin = GPIO_PIN_15;
-  LightSensor_Init(&sensor);
+  char buffer[16]; // 放轉換後的字串
+  sprintf(buffer, "Counter: %lu", counter);
+  OLED_DrawText(&oled, 0, 10, buffer);
 
   /* USER CODE BEGIN 2 */
   /* USER CODE END 2 */
@@ -111,18 +108,7 @@ int main(void)
 
   while (1)
   {
-
     /* USER CODE BEGIN WHILE */
-    GPIO_PinState state = LightSensor_Read(&sensor);
-
-    if (state == GPIO_PIN_SET)
-    {
-      Buzzer_On(&buzzer);
-    }
-    else
-    {
-      Buzzer_Off(&buzzer);
-    }
 
     /* USER CODE END WHILE */
   }
@@ -182,6 +168,18 @@ static void MX_GPIO_Init(void)
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
+  // 設定 PB14 外部中斷
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pin = GPIO_PIN_14;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 1);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
@@ -219,6 +217,17 @@ static void MX_I2C1_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == GPIO_PIN_14 &&
+      HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == GPIO_PIN_RESET)
+  {
+    counter++;
+    char buffer[16];
+    sprintf(buffer, "Counter: %lu", counter);
+    OLED_DrawText(&oled, 0, 10, buffer);
+  }
+}
 
 /* USER CODE END 4 */
 
